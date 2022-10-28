@@ -60,11 +60,6 @@ function Home(props) {
                   <ListItemIcon><SearchIcon /></ListItemIcon><ListItemText primary={"Search"} />
                 </ListItemButton>
             </ListItem>
-            <ListItem key={"Result"} disablePadding>
-                <ListItemButton component = {Link} to= {"/Result"} >
-                  <ListItemIcon><AnalyticsIcon /></ListItemIcon><ListItemText primary={"Result"} />
-                </ListItemButton>
-            </ListItem>
             <ListItem key={"About"} disablePadding>
                 <ListItemButton component = {Link} to= {"/About"} >
                   <ListItemIcon><InfoIcon /></ListItemIcon><ListItemText primary={"About"} />
