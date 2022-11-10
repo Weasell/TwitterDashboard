@@ -22,28 +22,27 @@ function Search() {
   };
 
   const onConfirm = async () => {
-    let response = await axios({
-        method: "get",
-        url: "http://localhost:5000/inventory",
-        // url: "http://localhost:8000/queries/setQuery",
-        data: {
-          keywords: ["123"],
-          startTime: startDate,
-          endTime: endDate,
-          source: 2,
-        },
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Credentials": "true",
-        },
-      }).then((reply) => {
-          console.log(reply);
-      }).catch((err) => {
-          console.log(err.response);
-      });
-    //wait for axios call
-    // const result = await axiosCall();
+    const content = {
+      keywords: [],
+      startTime: startDate,
+      endTime: endDate,
+      source: 0,
+    };
+    fetch('http://127.0.0.1:8000/queries/setQuery',{
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(content)
+    }).then(response => {
+      if (response.ok) {
+        response.json().then(json => {
+          console.log(json);
+        });
+      }
+    }).catch((err) => {
+      console.log(err.response);
+    });
   };
 
   return (
