@@ -90,7 +90,7 @@ def getLineChartData(sqliteQueryResult):
     """
     freqDict = {}
     for index, row in sqliteQueryResult.iterrows():
-        daytime = row['time'].split()[1][:5]
+        daytime = row['time'].split()[1].split(':')[0]
         if daytime not in freqDict:
             freqDict[daytime] = 0
         freqDict[daytime] += 1
@@ -120,8 +120,12 @@ def getWordCloudData(sqliteQueryResult):
             freqDict[word] += 1
     result = []
     sortedFreqDict = dict(sorted(freqDict.items(), key=lambda x: x[1], reverse=True))
+    cnt = 0
     for word in sortedFreqDict.keys():
         if word not in stopWordsSet:
             # print(word)
             result.append({'word': word, 'freq': freqDict[word]})
+            cnt += 1
+            if cnt == 100:
+                break
     return result

@@ -2,13 +2,13 @@
 
 ## Environment Built-up
 
-- Install `pandas`, `django` on python
+- Install `pandas`, `django`, `nltk` on python
 
   ```shell
   $ pip3 install pandas django nltk
   ```
 
-- Download `test.db` from [test.db - Google 雲端硬碟](https://drive.google.com/file/d/1_hkucDY6Z0nqH9V0PfWkxBR911mAVPHN/view) and place under `backend` directory
+- Download `test.db` from [test.db - Google Drive](https://drive.google.com/file/d/1_hkucDY6Z0nqH9V0PfWkxBR911mAVPHN/view) and place under `backend` directory
 
   ```shell
   - /TweeterDashboard
@@ -49,10 +49,10 @@
 
 ```json
 {
-    "keywords": ["keyword1", "keyword2"],				// array of strings
-    "startTime": "Wed Nov 09 2022 21:37:30 GMT-0500",	// javascript time format
-    "endTime": "Wed Nov 09 2022 21:37:30 GMT-0500",		// javascript time format
-    "source": 1,										// integer, 
+    "keywords": ["keyword1", "keyword2"],
+    "startTime": "Wed Nov 09 2022 21:37:30 GMT-0500",
+    "endTime": "Wed Nov 09 2022 21:37:30 GMT-0500",
+    "source": 1,
 }
 ```
 
@@ -73,26 +73,64 @@
 
 ```json
 {
-    "diskTime": 3.141,	//float
-    "memTime": 2.718,	//float
-    "first10Result":[
+    "diskTime": 0.7179164886474609,
+    "memTime": 0.7179164886474609,
+    "first10Result": [
         {
-            "text": "hello1",
-            "time": "Wed Nov 09 2022 21:37:30 GMT-0500",
-            "source": 1
+            "text": "RT @Avengers: Welcome to the party, @RobertDowneyJr! #IronMan #AvengersEndgame https://t.co/vLttl0LCqE",
+            "time": "2019-04-23 09:22:01",
+            "favoriteCount": 0,
+            "retweetCount": 10736,
+            "source": 1,
+            "priority": 10736
         },
         {
-            "text": "hello2",
-            "time": "Wed Nov 09 2022 21:37:30 GMT-0500",
-            "source": 2
-        },
-        ...
+            "text": "RT @Avengers: Welcome to the party, @RobertDowneyJr! #IronMan #AvengersEndgame https://t.co/vLttl0LCqE",
+            "time": "2019-04-23 09:22:54",
+            "favoriteCount": 0,
+            "retweetCount": 10736,
+            "source": 1,
+            "priority": 10736
+        }, ...
+    ],
+    "histogramData": [
         {
-            "text": "hello10",
-            "time": "Wed Nov 09 2022 21:37:30 GMT-0500",
-            "source": 10
+            "date": "2019-04-07",
+            "freq": 5
         },
-    ]
+        {
+            "date": "2019-04-08",
+            "freq": 8
+        }, ...
+    ],
+    "lineChartData": [
+        {
+            "date": "00",
+            "freq": 61
+        },
+        {
+            "date": "01",
+            "freq": 85
+        },
+        ...,
+        {
+            "date": "23",
+            "freq": 51
+        }
+    ],
+    "wordCloudData": [
+        {
+            "word": "welcome",
+            "freq": 1413
+        },
+        {
+            "word": "game",
+            "freq": 947
+        },
+        {
+            "word": "thrones",
+            "freq": 846
+        }, ...
+    ],
 }
 ```
-
