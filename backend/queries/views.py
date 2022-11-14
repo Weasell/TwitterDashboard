@@ -5,7 +5,7 @@ import pandas as pd
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 
-from .utils import sqliteQueryByFilter, buildMemoryDB
+from .utils import getHistogramData, getLineChartData, getWordCloudData, sqliteQueryByFilter, buildMemoryDB
 
 setFilter = None
 conn_memoryDB = None
@@ -41,6 +41,9 @@ def setQuery(request):
     resultDict['diskTime'] = queryEndTime - queryStartTime
     resultDict['memTime'] = queryEndTime - queryStartTime
     resultDict['first10Result'] = sqliteQueryResult[:min(10, size)].to_dict('records')
+    resultDict['histogramData'] = getHistogramData(sqliteQueryResult)
+    resultDict['lineChartData'] = getLineChartData(sqliteQueryResult)
+    resultDict['wordCloudData'] = getWordCloudData(sqliteQueryResult)
     return JsonResponse(resultDict)
     
 def subsetQuery(request):
@@ -69,4 +72,7 @@ def subsetQuery(request):
     resultDict['diskTime'] = queryDistEndTime - queryDiskStartTime
     resultDict['memTime'] = queryMemEndTime - queryMemStartTime
     resultDict['first10Result'] = sqliteQueryResult[:min(10, size)].to_dict('records')
+    resultDict['histogramData'] = getHistogramData(sqliteQueryResult)
+    resultDict['lineChartData'] = getLineChartData(sqliteQueryResult)
+    resultDict['wordCloudData'] = getWordCloudData(sqliteQueryResult)
     return JsonResponse(resultDict)

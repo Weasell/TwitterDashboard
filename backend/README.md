@@ -5,10 +5,10 @@
 - Install `pandas`, `django` on python
 
   ```shell
-  $ pip3 install pandas django
+  $ pip3 install pandas django nltk
   ```
 
-- Download Yi-Tang's data and copy the `test.db` folder under the `query` folder
+- Download `test.db` from [test.db - Google 雲端硬碟](https://drive.google.com/file/d/1_hkucDY6Z0nqH9V0PfWkxBR911mAVPHN/view) and place under `backend` directory
 
   ```shell
   - /TweeterDashboard
