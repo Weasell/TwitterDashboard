@@ -7,31 +7,36 @@ from django.http import HttpResponse, JsonResponse
 
 from .utils import getHistogramData, getLineChartData, getWordCloudData, sqliteQueryByFilter, buildMemoryDB
 
+from django.views.decorators.csrf import csrf_exempt
+
+conn = sqlite3.connect('test.db', check_same_thread=False)
 setFilter = None
 conn_memoryDB = None
 
 def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
 
+@csrf_exempt 
 def setQuery(request):
     """set query API entrypoin"""
     # fetch the global variables
-    global setFilter, conn_memoryDB
+    global conn, setFilter, conn_memoryDB
 
     # get the filter from the request body
     filter = json.loads(request.body)
+    print(filter)
 
     # fetch the result and time
     queryStartTime = time.time()
-    conn = sqlite3.connect('test.db')
+    # conn = sqlite3.connect('test.db')
     sqliteQueryResult = sqliteQueryByFilter(conn, [filter])
-    conn.close()
+    # conn.close()
     queryEndTime = time.time()
 
     # build in-memory database
     if conn_memoryDB is not None:
         conn_memoryDB.close()
-    conn_memoryDB = sqlite3.connect(":memory:")
+    conn_memoryDB = sqlite3.connect(":memory:", check_same_thread=False)
     buildMemoryDB(conn_memoryDB, sqliteQueryResult)
     setFilter = filter
 
@@ -46,6 +51,7 @@ def setQuery(request):
     resultDict['wordCloudData'] = getWordCloudData(sqliteQueryResult)
     return JsonResponse(resultDict)
     
+@csrf_exempt 
 def subsetQuery(request):
     """subset query API entrypoint"""
     # fetch the globle variables

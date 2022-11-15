@@ -4,44 +4,45 @@ import { Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
 function Search() {
-  const [startDate, setStartDate] = React.useState(null);
-  const [endDate, setEndDate] = React.useState(null);
-  const [keywords, setKeywordState] = React.useState(null);
+  const [startDate, setStartDate] = React.useState("");
+  const [endDate, setEndDate] = React.useState("");
+  const [keywords, setKeywordState] = React.useState([]);
 
   function startDateChangeHandler(date) {
     console.log("startDateChangeHandler");
-    setStartDate(date);
-    console.log(startDate);
+    if(date == null)
+      setStartDate("");
+    else
+      setStartDate(date);
+    console.log("set start date to", startDate);
   }
 
   function endDateChangeHandler(date) {
     console.log("endDateChangeHandler");
-    setEndDate(date);
-    console.log(endDate);
+    if(date == null)
+      setEndDate("");
+    else
+      setEndDate(date);
+    console.log("set end date to", endDate);
   }
 
-  const onChange = (e) => {
+  const keywordsHandler = (e) => {
     /*
       used to set state of keywords
     */
     const { name, value } = e.target;
-    setKeywordState((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+    setKeywordState(value.split(" "));
   };
 
   const navigate = useNavigate();
-  const onConfirm1 = async () => {
-    console.log(startDate, endDate, keywords);
-    navigate("/SubSearch" , {
-      state: {
-        startDate: startDate, 
-        endDate: endDate, 
-        keywords: keywords 
-      }
-    }
-    );
+  const testing = async () => {
+    const content = {
+      keywords: keywords,
+      startTime: startDate,
+      endTime: endDate,
+      source: 0,
+    };
+    console.log(JSON.stringify(content));
   };
 
   const onConfirm = async () => {
@@ -51,6 +52,7 @@ function Search() {
       endTime: endDate,
       source: 0,
     };
+    console.log(JSON.stringify(content));
     fetch("http://127.0.0.1:8000/queries/setQuery", {
       method: "POST",
       headers: {
@@ -60,18 +62,17 @@ function Search() {
     })
       .then((response) => {
         if (response.ok) {
-          response.json().then((json) => {
-            console.log(json);
+          response.json().then((setQueryResult) => {
+            console.log(setQueryResult);
+            navigate("/subSearch", {
+              state: { startDate: startDate, endDate: endDate, keywords: keywords, setQueryResult: setQueryResult},
+            });
           });
         }
       })
       .catch((err) => {
         console.log(err.response);
       });
-
-    navigate("/subSearch", {
-      state: { startDate: startDate, endDate: endDate, keywords: keywords },
-    });
   };
 
   return (
@@ -98,11 +99,11 @@ function Search() {
           type="text"
           placeholder="input key word"
           name="keywords"
-          onChange={onChange}
+          onChange={keywordsHandler}
         />
       </Form.Group>
 
-      <button onClick={() => onConfirm1()}>test</button>
+      <button onClick={() => testing()}>test</button>
       <button onClick={() => onConfirm()}>search</button>
     </div>
   );

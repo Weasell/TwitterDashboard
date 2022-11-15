@@ -45,6 +45,7 @@ def sqliteQueryByFilter(conn, filters):
         whereClause = " AND ".join(whereClauses)
         sqlCommand += ' WHERE ' + whereClause
     sqlCommand += ' ORDER BY priority DESC, time ASC;'
+    print(sqlCommand)
     return pd.read_sql(sqlCommand, conn)
 
 

@@ -1,39 +1,54 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
 import ChooseDate from "../components/chooseDate";
 import { Form } from "react-bootstrap";
+import { useLocation } from "react-router-dom";
 
 function SubSearch(props) {
   const location = useLocation();
   const queryKeywords = location?.state?.keywords;
   const querystartDatae = location?.state?.startDate;
   const queryendDatae = location?.state?.endDate;
+  const setQueryResult = location?.state?.setQueryResult;
 
-  const [sub_startDate, setSubStartDate] = React.useState(null);
-  const [sub_endDate, setSubEndDate] = React.useState(null);
-  const [sub_keywords, setSubKeywordState] = React.useState(null);
+  const [sub_startDate, setSubStartDate] = React.useState("");
+  const [sub_endDate, setSubEndDate] = React.useState("");
+  const [sub_keywords, setSubKeywordState] = React.useState([]);
 
   function startDateChangeHandler(date) {
     console.log("startDateChangeHandler");
-    setSubStartDate(date);
+    if(date == null)
+      setSubStartDate("");
+    else
+      setSubStartDate(date);
     console.log(sub_startDate);
   }
 
   function endDateChangeHandler(date) {
     console.log("endDateChangeHandler");
-    setSubEndDate(date);
+    if(date == null)
+      setSubEndDate("");
+    else
+      setSubEndDate(date);
     console.log(sub_endDate);
   }
 
-  const onChange = (e) => {
+  const testing = async () => {
+    console.log(setQueryResult);
+    const content = {
+      keywords: sub_keywords,
+      startTime: sub_startDate,
+      endTime: sub_endDate,
+      source: 0,
+    };
+    console.log(JSON.stringify(content));
+  };
+
+  const keywordsHandler = (e) => {
     /*
           used to set state of sub_keywords
         */
     const { name, value } = e.target;
-    setSubKeywordState((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+    setSubKeywordState(value.split(" "));
   };
 
   const onConfirm = async () => {
@@ -43,7 +58,8 @@ function SubSearch(props) {
       endTime: sub_endDate,
       source: 0,
     };
-    fetch("http://127.0.0.1:8000/queries/setQuery", {
+    console.log(JSON.stringify(content));
+    fetch("http://127.0.0.1:8000/queries/subsetQuery", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -60,23 +76,6 @@ function SubSearch(props) {
       .catch((err) => {
         console.log(err.response);
       });
-  };
-
-  const onConfirm1 = async () => {
-    console.log(
-        " fuck1 " +
-        JSON.stringify(queryKeywords) + "\n" +
-        " fuck2" +
-        querystartDatae + "\n" +
-        " fuck3 " +
-        queryendDatae +  "\n" +
-        " fuck4 " +
-        JSON.stringify(sub_keywords) + "\n" +
-        " fuck5 " +
-        sub_startDate + "\n" +
-        " fuck6 " + 
-        sub_endDate 
-    );
   };
 
   return (
@@ -103,10 +102,10 @@ function SubSearch(props) {
           type="text"
           placeholder="input key word"
           name="keywords"
-          onChange={onChange}
+          onChange={keywordsHandler}
         />
       </Form.Group>
-      <button onClick={() => onConfirm1()}>test</button>
+      <button onClick={() => testing()}>test</button>
       <button onClick={() => onConfirm()}>search</button>
     </div>
   );
