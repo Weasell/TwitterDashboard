@@ -2,10 +2,10 @@
 
 ## Environment Built-up
 
-- Install `pandas`, `django`, `nltk` on python
+- Install `pandas`, `django`, `nltk`, `django-cors-headers` on python
 
   ```shell
-  $ pip3 install pandas django nltk
+  $ pip3 install pandas django nltk django-cors-headers
   ```
 
 - Download `test.db` from [test.db - Google Drive](https://drive.google.com/file/d/1_hkucDY6Z0nqH9V0PfWkxBR911mAVPHN/view) and place under `backend` directory
