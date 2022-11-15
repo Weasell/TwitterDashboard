@@ -1,54 +1,46 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 import ChooseDate from "../components/chooseDate";
 import { Form } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
 
-function Search() {
-  const [startDate, setStartDate] = React.useState(null);
-  const [endDate, setEndDate] = React.useState(null);
-  const [keywords, setKeywordState] = React.useState(null);
+function SubSearch(props) {
+  const location = useLocation();
+  const queryKeywords = location?.state?.keywords;
+  const querystartDatae = location?.state?.startDate;
+  const queryendDatae = location?.state?.endDate;
+
+  const [sub_startDate, setSubStartDate] = React.useState(null);
+  const [sub_endDate, setSubEndDate] = React.useState(null);
+  const [sub_keywords, setSubKeywordState] = React.useState(null);
 
   function startDateChangeHandler(date) {
     console.log("startDateChangeHandler");
-    setStartDate(date);
-    console.log(startDate);
+    setSubStartDate(date);
+    console.log(sub_startDate);
   }
 
   function endDateChangeHandler(date) {
     console.log("endDateChangeHandler");
-    setEndDate(date);
-    console.log(endDate);
+    setSubEndDate(date);
+    console.log(sub_endDate);
   }
 
   const onChange = (e) => {
     /*
-      used to set state of keywords
-    */
+          used to set state of sub_keywords
+        */
     const { name, value } = e.target;
-    setKeywordState((prevState) => ({
+    setSubKeywordState((prevState) => ({
       ...prevState,
       [name]: value,
     }));
   };
 
-  const navigate = useNavigate();
-  const onConfirm1 = async () => {
-    console.log(startDate, endDate, keywords);
-    navigate("/SubSearch" , {
-      state: {
-        startDate: startDate, 
-        endDate: endDate, 
-        keywords: keywords 
-      }
-    }
-    );
-  };
-
   const onConfirm = async () => {
     const content = {
-      keywords: keywords,
-      startTime: startDate,
-      endTime: endDate,
+      keywords: sub_keywords,
+      startTime: sub_startDate,
+      endTime: sub_endDate,
       source: 0,
     };
     fetch("http://127.0.0.1:8000/queries/setQuery", {
@@ -68,28 +60,41 @@ function Search() {
       .catch((err) => {
         console.log(err.response);
       });
+  };
 
-    navigate("/subSearch", {
-      state: { startDate: startDate, endDate: endDate, keywords: keywords },
-    });
+  const onConfirm1 = async () => {
+    console.log(
+        " fuck1 " +
+        JSON.stringify(queryKeywords) + "\n" +
+        " fuck2" +
+        querystartDatae + "\n" +
+        " fuck3 " +
+        queryendDatae +  "\n" +
+        " fuck4 " +
+        JSON.stringify(sub_keywords) + "\n" +
+        " fuck5 " +
+        sub_startDate + "\n" +
+        " fuck6 " + 
+        sub_endDate 
+    );
   };
 
   return (
     <div>
-      <h1>Search</h1>
+      <h1>Sub Query Page</h1>
       <div> start date </div>
       <ChooseDate
-        date={startDate}
+        date={sub_startDate}
         onChange={startDateChangeHandler}
-        minDate={new Date("04-07-2019")}
-        maxDate={new Date("11-01-2021")}
+        minDate={querystartDatae}
+        maxDate={queryendDatae}
       />
       <div> end date </div>
       <ChooseDate
-        date={endDate}
+        date={sub_endDate}
         onChange={endDateChangeHandler}
-        minDate={startDate}
-        maxDate={new Date("11-01-2021")}
+        minDate={sub_startDate}
+        maxDate={queryendDatae}
       />
 
       <div> Key Word </div>
@@ -101,11 +106,10 @@ function Search() {
           onChange={onChange}
         />
       </Form.Group>
-
       <button onClick={() => onConfirm1()}>test</button>
       <button onClick={() => onConfirm()}>search</button>
     </div>
   );
 }
 
-export default Search;
+export default SubSearch;
