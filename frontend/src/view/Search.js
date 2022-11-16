@@ -55,8 +55,8 @@ function Search() {
     })
       .then((response) => {
         if (response.ok) {
-          response.json().then((json) => {
-            console.log(json);
+          response.json().then((setQueryResult) => {
+            console.log(setQueryResult);
           });
         }
       })
