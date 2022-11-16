@@ -11,81 +11,54 @@ import Select from '@mui/material/Select';
 
 export default function QueryForm(props) {
   const {handleSearch} = props;
-  // const minDate = new Date("04-07-2019");
-  // const maxDate = new Date("11-01-2021");
-  const [startDate, setStartDate] = React.useState("");
-  const [endDate, setEndDate] = React.useState("");
-  const [keywords, setKeyword] = React.useState([]);
-  const [source, setSource] = React.useState(0);
-
+  const [startDate, setStartDate] = React.useState(new Date("04-07-2019"));
+  const [endDate, setEndDate] = React.useState(new Date("11-01-2021"));
+  const [keywords, setKeyword] = React.useState("");
+  const [type, setType] = React.useState(1);
   const handleStartDate = (date) => {
-    if(date === null)
-      setStartDate("")
-    else
-      setStartDate(date.toString());
-    // console.log("handle Start Date", startDate);
+    setStartDate(date);
   }
-
   const handleEndDate = (date) => {
-    if(date === null)
-      setEndDate("")
-    else
-      setEndDate(date.toString());
-      // console.log("handle End Date", endDate);
+    setEndDate(date);
   }
-
+  // const handleKeyword = useCallback((e) => {
+  //   setKeyword(e.target.value)}, console.log(keywords))
   const handleKeyword = (e) => {
-    setKeyword(e.target.value.split(" "));
+    setKeyword(e.target.value);
   };
-
-  const handleSourceChange = (event) => {
-    setSource(event.target.value);
+  const handleTypeChange = (event) => {
+    setType(event.target.value);
   };
-
   function submit(){
+    // console.log("queryform: "+startDate.toISOString());
+    // console.log("queryform: "+endDate.toISOString());
     const content = {
-      startTime: startDate,
-      endTime: endDate,
+      startTime: startDate.toISOString(),
+      endTime: endDate.toISOString(),
       keywords: keywords,
-      source: source,
+      source: type,
     };
     handleSearch(content);
   }
   return (
     <Stack spacing={2} direction="row">
-      <SelectDate 
-        text="Start Time" 
-        curDate={startDate} 
-        handleChange={handleStartDate} 
-        minDate={new Date("04-07-2019")} 
-        maxDate={new Date("11-01-2021")}
-      />
-      <SelectDate 
-        text="End Time" 
-        curDate={endDate} 
-        handleChange={handleEndDate} 
-        minDate={new Date("04-07-2019")} 
-        maxDate={new Date("11-01-2021")}
-      />
-      <TextField 
-        id="Keyword" 
-        label="Keyword" 
-        variant="outlined" 
-        onChange={(e) => handleKeyword(e)} 
-      />
-      <FormControl sx={{ width: '15ch' }}>
+      <SelectDate type="Start Time" defaultDate={startDate} handleChange={handleStartDate} />
+      <SelectDate type="End Time" defaultDate={endDate} handleChange={handleEndDate} />
+      <TextField id="Keyword" label="Keyword" variant="outlined" onChange={(e) => handleKeyword(e)} />
+      <FormControl sx={{ width: '25ch' }}>
         <InputLabel id="demo-simple-select-label">Type</InputLabel>
         <Select
           labelId="demo-simple-select-label"
           id="demo-simple-select"
-          value={source}
-          label="Source"
-          onChange={handleSourceChange}
+          value={type}
+          label="Type"
+          onChange={handleTypeChange}
         >
           <MenuItem value={0}>All</MenuItem>
           <MenuItem value={1}>Avengers Endgame</MenuItem>
           <MenuItem value={2}>Game of Thrones S8</MenuItem>
           <MenuItem value={3}>Squid Game</MenuItem>
+
         </Select>
       </FormControl>
       <Button variant="contained" onClick={submit}>Search</Button>
