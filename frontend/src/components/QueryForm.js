@@ -13,8 +13,8 @@ export default function QueryForm(props) {
   const {handleSearch} = props;
   const [startDate, setStartDate] = React.useState(new Date("04-07-2019"));
   const [endDate, setEndDate] = React.useState(new Date("11-01-2021"));
-  const [keywords, setKeyword] = React.useState("");
-  const [source, setSource] = React.useState(1);
+  const [keywords, setKeywords] = React.useState([]);
+  const [source, setSource] = React.useState(0);
   const handleStartDate = (date) => {
     setStartDate(date);
   }
@@ -24,7 +24,7 @@ export default function QueryForm(props) {
   // const handleKeyword = useCallback((e) => {
   //   setKeyword(e.target.value)}, console.log(keywords))
   const handleKeyword = (e) => {
-    setKeyword(e.target.value);
+    setKeywords(e.target.value.trim().split(" "));
   };
   const handleTypeChange = (event) => {
     setSource(event.target.value);
@@ -32,7 +32,7 @@ export default function QueryForm(props) {
   function submit(){
     // console.log("queryform: "+startDate.toISOString());
     // console.log("queryform: "+endDate.toISOString());
-    const keywordlist = keywords.trim().split(/\s+/);
+    const keywordlist = keywords;
     const content = {
       startTime: startDate.toISOString(),
       endTime: endDate.toISOString(),

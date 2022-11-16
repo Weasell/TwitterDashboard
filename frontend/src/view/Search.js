@@ -1,5 +1,4 @@
 import React from "react";
-import { useState, useCallback } from "react";
 
 import QueryForm from "../components/QueryForm";
 import PropTypes from 'prop-types';
@@ -45,7 +44,7 @@ function a11yProps(index) {
 function Search() {
   const [TabDisabled, setTabDisabled] = React.useState(true);
   const [value, setTab] = React.useState(0);
-  const [setQueryResult, setQueryData] = React.useState("");
+  const [queryResult, setQueryResult] = React.useState(null);
   // Variable for dashboard
   const histogram = React.useRef(null);
   const linechart = React.useRef(null);
@@ -62,7 +61,7 @@ function Search() {
     setTab(newValue);
   }
   
-  function submitForm(content) {
+  function submitForm2SetQuery(content) {
     console.log(content);
     fetch("http://127.0.0.1:8000/queries/setQuery", {
       method: "POST",
@@ -73,9 +72,9 @@ function Search() {
     })
       .then((response) => {
         if (response.ok) {
-          response.json().then((setQueryResult) => {
-            setQueryData(setQueryResult);
-            console.log(setQueryResult);
+          response.json().then((queryResult) => {
+            setQueryResult(queryResult);
+            console.log(queryResult);
           });
         }
       })
@@ -87,8 +86,30 @@ function Search() {
     show.style.display = "block";
   }
 
+  function submitForm2SubsetQuery(content) {
+    console.log(content);
+    fetch("http://127.0.0.1:8000/queries/subsetQuery", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(content),
+    })
+      .then((response) => {
+        if (response.ok) {
+          response.json().then((queryResult) => {
+            setQueryResult(queryResult);
+            console.log(queryResult);
+          });
+        }
+      })
+      .catch((err) => {
+        console.log(err.response);
+      });
+  }
+
   React.useEffect(() => {
-    if (setQueryResult != "") {
+    if (queryResult !== null) {
       const svgEl = d3.select(histogram.current);
       svgEl.selectAll("*").remove(); // Clear svg content before adding new elements
       const svgE2 = d3.select(linechart.current);
@@ -98,7 +119,7 @@ function Search() {
       const tableE1 = d3.select(tweetsTable.current);
       tableE1.selectAll("*").remove();
 
-      let histData = setQueryResult.lineChartData;
+      let histData = queryResult.lineChartData;
 
       // Draw Histogram
       // Layout
@@ -167,7 +188,7 @@ function Search() {
 
       // Draw Line Chart
       let parseTime = timeParse("%Y-%m-%d");
-      let lineData = setQueryResult.histogramData;
+      let lineData = queryResult.histogramData;
 
       // Layout
       let svgLine = d3.select(linechart.current)
@@ -271,7 +292,7 @@ function Search() {
         .append("g")
         .attr("transform", "translate(" + (cmargin.left + cWidth / 2) + "," + (cmargin.top + cHeight / 2) + ")");
 
-      let wordsData = setQueryResult.wordCloudData.map(function (d) { return { text: d.word, value: d.freq }; });
+      let wordsData = queryResult.wordCloudData.map(function (d) { return { text: d.word, value: d.freq }; });
       let freq2fontSize = d3.scaleLinear()
         .domain([0, d3.max(wordsData, function (d) { return d.value; })])
         .rangeRound([25, 80]);
@@ -306,7 +327,7 @@ function Search() {
       let thead = table.append('thead');
       let tbody = table.append('tbody');
 
-      let tableData = setQueryResult.first10Result;
+      let tableData = queryResult.first10Result;
       let cols = Object.keys(tableData[0]);
 
       // append the header row
@@ -365,36 +386,36 @@ function Search() {
         </Box>
         {/* query */}
         <TabPanel value={value} index={0}>
-          <QueryForm handleSearch = {submitForm}/>
-          <div id="displayData" style={{ "display": "none" }}>
-            <Container>
-              <Row>
-                <Col>
-                  <div>
-                    <svg ref={histogram} width={hist_line_Width} height={hist_line_Height} />
-                  </div>
-                  <div>
-                    <svg ref={linechart} width={hist_line_Width} height={hist_line_Height} />
-                  </div>
-                </Col>
-                <Col>
-                  <svg ref={wordcloud} width={CloudWidth} height={CloudHeight} />
-                </Col>
-              </Row>
-              <Row>
-                <Col><div ref={tweetsTable}></div></Col>
-              </Row>
-            </Container>
-          </div>
+          <QueryForm handleSearch = {submitForm2SetQuery}/>
         </TabPanel>
         {/**/}
 
         {/* subquery */}
         <TabPanel value={value} index={1}>
-          <QueryForm handleSearch = {submitForm}/>
+          <QueryForm handleSearch = {submitForm2SubsetQuery}/>
         </TabPanel>
         {/**/}
 
+        <div id="displayData" style={{ "display": "none" }}>
+          <Container>
+            <Row>
+              <Col>
+                <div>
+                  <svg ref={histogram} width={hist_line_Width} height={hist_line_Height} />
+                </div>
+                <div>
+                  <svg ref={linechart} width={hist_line_Width} height={hist_line_Height} />
+                </div>
+              </Col>
+              <Col>
+                <svg ref={wordcloud} width={CloudWidth} height={CloudHeight} />
+              </Col>
+            </Row>
+            <Row>
+              <Col><div ref={tweetsTable}></div></Col>
+            </Row>
+          </Container>
+        </div>
       </Box>
     </div>
   );
