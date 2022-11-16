@@ -9,6 +9,13 @@ export default function SelectDate(props) {
   const {type, defaultDate,handleChange} = props;
 
   const [value, setValue] = React.useState(defaultDate);
+  function handler(newValue){
+
+    setValue(newValue);
+    handleChange(newValue);
+    // console.log("selectDate: "+newValue.toString());
+
+  }
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <DatePicker
@@ -16,7 +23,7 @@ export default function SelectDate(props) {
         value={value}
         minDate={new Date("04-07-2019")}
         maxDate={new Date("11-01-2021")}
-        onChange={(newValue)=>handleChange(newValue)}
+        onChange={(newValue)=>handler(newValue)}
         renderInput={(params) => <TextField {...params} />}
       />
     </LocalizationProvider>

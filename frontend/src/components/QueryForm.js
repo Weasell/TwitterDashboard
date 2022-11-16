@@ -14,7 +14,7 @@ export default function QueryForm(props) {
   const [startDate, setStartDate] = React.useState(new Date("04-07-2019"));
   const [endDate, setEndDate] = React.useState(new Date("11-01-2021"));
   const [keywords, setKeyword] = React.useState("");
-  const [type, setType] = React.useState(1);
+  const [source, setSource] = React.useState(1);
   const handleStartDate = (date) => {
     setStartDate(date);
   }
@@ -27,16 +27,17 @@ export default function QueryForm(props) {
     setKeyword(e.target.value);
   };
   const handleTypeChange = (event) => {
-    setType(event.target.value);
+    setSource(event.target.value);
   };
   function submit(){
     // console.log("queryform: "+startDate.toISOString());
     // console.log("queryform: "+endDate.toISOString());
+    const keywordlist = keywords.trim().split(/\s+/);
     const content = {
       startTime: startDate.toISOString(),
       endTime: endDate.toISOString(),
-      keywords: keywords,
-      source: type,
+      keywords: keywordlist,
+      source: source,
     };
     handleSearch(content);
   }
@@ -46,12 +47,12 @@ export default function QueryForm(props) {
       <SelectDate type="End Time" defaultDate={endDate} handleChange={handleEndDate} />
       <TextField id="Keyword" label="Keyword" variant="outlined" onChange={(e) => handleKeyword(e)} />
       <FormControl sx={{ width: '25ch' }}>
-        <InputLabel id="demo-simple-select-label">Type</InputLabel>
+        <InputLabel id="demo-simple-select-label">Source</InputLabel>
         <Select
           labelId="demo-simple-select-label"
           id="demo-simple-select"
-          value={type}
-          label="Type"
+          value={source}
+          label="Source"
           onChange={handleTypeChange}
         >
           <MenuItem value={0}>All</MenuItem>
