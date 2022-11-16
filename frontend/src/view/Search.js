@@ -1,56 +1,51 @@
 import React from "react";
-import ChooseDate from "../components/chooseDate";
-import { Form } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { useState, useCallback } from "react";
 
+import QueryForm from "../components/QueryForm";
+import PropTypes from 'prop-types';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+
+function TabPanel(props) {
+  const { children, value, index } = props;
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+    >
+      {value === index && (
+        <Box sx={{ p: 3 }}>
+          <Typography>{children}</Typography>
+        </Box>
+      )}
+    </div>
+  );
+}
+TabPanel.propTypes = {
+  children: PropTypes.node,
+  index: PropTypes.number.isRequired,
+  value: PropTypes.number.isRequired,
+};
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  };
+}
 function Search() {
-  const [startDate, setStartDate] = React.useState(null);
-  const [endDate, setEndDate] = React.useState(null);
-  const [keywords, setKeywordState] = React.useState(null);
-
-  function startDateChangeHandler(date) {
-    console.log("startDateChangeHandler");
-    setStartDate(date);
-    console.log(startDate);
+  const [TabDisabled, setTabDisabled] = React.useState(true);
+  const [value, setTab] = React.useState(0);
+  // const [ShowData1, setShowData1] = React.useState(true);
+  const handleTab = (event, newValue) => {
+    setTab(newValue);
   }
-
-  function endDateChangeHandler(date) {
-    console.log("endDateChangeHandler");
-    setEndDate(date);
-    console.log(endDate);
-  }
-
-  const onChange = (e) => {
-    /*
-      used to set state of keywords
-    */
-    const { name, value } = e.target;
-    setKeywordState((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
-
-  const navigate = useNavigate();
-  const onConfirm1 = async () => {
-    console.log(startDate, endDate, keywords);
-    navigate("/SubSearch" , {
-      state: {
-        startDate: startDate, 
-        endDate: endDate, 
-        keywords: keywords 
-      }
-    }
-    );
-  };
-
-  const onConfirm = async () => {
-    const content = {
-      keywords: keywords,
-      startTime: startDate,
-      endTime: endDate,
-      source: 0,
-    };
+  
+  function submitForm(content) {
+    console.log(content);
     fetch("http://127.0.0.1:8000/queries/setQuery", {
       method: "POST",
       headers: {
@@ -68,42 +63,38 @@ function Search() {
       .catch((err) => {
         console.log(err.response);
       });
-
-    navigate("/subSearch", {
-      state: { startDate: startDate, endDate: endDate, keywords: keywords },
-    });
-  };
-
+    setTabDisabled(false);
+    var show = document.getElementById("displayData");
+    show.style.display = "block";
+    // setShowData1(true);
+  }
   return (
     <div>
-      <h1>Search</h1>
-      <div> start date </div>
-      <ChooseDate
-        date={startDate}
-        onChange={startDateChangeHandler}
-        minDate={new Date("04-07-2019")}
-        maxDate={new Date("11-01-2021")}
-      />
-      <div> end date </div>
-      <ChooseDate
-        date={endDate}
-        onChange={endDateChangeHandler}
-        minDate={startDate}
-        maxDate={new Date("11-01-2021")}
-      />
+      <h1 style={{ "marginTop": 0 }}>Search</h1>
+      This search page provide two main function to users: query operation and subquery operation
+      <Box sx={{ width: '100%' }}>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+          <Tabs value={value} onChange={handleTab} aria-label="basic tabs example">
+            <Tab label="Query" {...a11yProps(0)} />
+            <Tab label="Subquery" {...a11yProps(1)} disabled={TabDisabled}/>
+          </Tabs>
+        </Box>
+        {/* query */}
+        <TabPanel value={value} index={0}>
+          <QueryForm handleSearch = {submitForm}/>
+          <div id="displayData" style={{"display":"none"}}>
+            Display Data
+          </div>
+        </TabPanel>
+        {/**/}
 
-      <div> Key Word </div>
-      <Form.Group>
-        <Form.Control
-          type="text"
-          placeholder="input key word"
-          name="keywords"
-          onChange={onChange}
-        />
-      </Form.Group>
+        {/* subquery */}
+        <TabPanel value={value} index={1}>
+          <QueryForm handleSearch = {submitForm}/>
+        </TabPanel>
+        {/**/}
 
-      <button onClick={() => onConfirm1()}>test</button>
-      <button onClick={() => onConfirm()}>search</button>
+      </Box>
     </div>
   );
 }
