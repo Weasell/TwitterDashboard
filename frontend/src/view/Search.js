@@ -7,7 +7,11 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import ReactTable from "react-table";
+// import ReactTable from "react-table";
+import CircularProgress from '@mui/material/CircularProgress';
+import LinearProgress from '@mui/material/LinearProgress';
+import { DataGrid, gridClasses } from '@mui/x-data-grid';
+import { blue,lightBlue, yellow } from '@mui/material/colors';
 
 import { Container, Row, Col } from "react-bootstrap";
 import * as d3 from "d3";
@@ -15,19 +19,48 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { timeParse } from "d3-time-format";
 import cloud from "d3-cloud";
 
-function QueryTimeDisplay(props){
+function QueryTimeDisplay(props) {
   // This function is for displaying
   // Disk Time, Memmory Time, Speedup
   console.log(props.queryResult + " queryTimeDisplay test")
-  if(!props.queryResult){
+  if (!props.queryResult) {
     return null;
   }
 
-  return(
-    <div>
-      <h2>Query Time: </h2>
-      Memmory Query Time: {props.queryResult.memTime}, Disk Query Time: {props.queryResult.diskTime}, Speed up {props.queryResult.diskTime/props.queryResult.memTime};
-    </div>
+  return (
+    <Box>
+      <h4>Query Time: </h4>
+      {/* Memmory Query Time: {props.queryResult.memTime}, Disk Query Time: {props.queryResult.diskTime}, Speed up {props.queryResult.diskTime / props.queryResult.memTime}; */}
+      <Box sx={{
+        height: 150,
+        width: '100%',
+        '& .time_header': {
+          backgroundColor: lightBlue[900],
+          color: yellow[50]
+        },
+        '& .time_cell':{
+          fontWeight: '500',
+          fontSize: '18px'
+        }
+      }}
+      >
+        <DataGrid
+          rows={[{Memmory_Query_Time: props.queryResult.memTime, Disk_Query_Time: props.queryResult.diskTime, Speed_up: props.queryResult.diskTime / props.queryResult.memTime}]}
+          columns={[ 
+            { field: "Memmory_Query_Time", headerName: 'Memmory Query Time', width: 90, flex: 1, headerClassName: 'time_header', cellClassName: 'time_cell'},
+            { field: "Disk_Query_Time", headerName: 'Disk Query Time', width: 90, flex: 1, headerClassName: 'time_header', cellClassName: 'time_cell' },
+            { field: "Speed_up", headerName: 'Speed up', width: 90, headerClassName: 'time_header', cellClassName: 'time_cell' },
+          ]}
+          getRowId={(row) => row.Memmory_Query_Time+row.Disk_Query_Time}
+          experimentalFeatures={{ newEditingApi: true }}
+          sx={{
+            [`& .${gridClasses.cell}`]: {
+              py: 1,
+            },
+          }}
+        />
+      </Box>
+    </Box>
   )
 }
 
@@ -63,6 +96,7 @@ function Search() {
   const [TabDisabled, setTabDisabled] = React.useState(true);
   const [value, setTab] = React.useState(0);
   const [queryResult, setQueryResult] = React.useState(null);
+  const [isLoading, setIsLoading] = React.useState("willload");
 
   // Variable for dashboard
   const histogram = React.useRef(null);
@@ -75,13 +109,23 @@ function Search() {
   const CloudHeight = 600;
   const cmargin = { top: 30, right: 20, bottom: 30, left: 20 };
   const tweetsTable = React.useRef(null);
+  const columns = [
+    // ['text', 'time', 'favoriteCount', 'retweetCount', 'source', 'priority']
+    { field: 'text', headerName: 'Text', width: 600, headerClassName: 'header' },
+    { field: 'time', headerName: 'Time', width: 180, flex: 1.8, headerClassName: 'header' },
+    { field: 'favoriteCount', headerName: 'FavCount', width: 100, flex: 1, headerClassName: 'header' },
+    { field: 'retweetCount', headerName: '#Retweet', width: 100, flex: 1, headerClassName: 'header' },
+    { field: 'source', headerName: 'Source', width: 100, flex: 1, headerClassName: 'header' },
+    { field: 'priority', headerName: 'Priority', width: 100, flex: 1, headerClassName: 'header' },
 
+  ]
   const handleTab = (event, newValue) => {
     setTab(newValue);
   };
 
   function submitForm2SetQuery(content) {
     console.log(content);
+    setIsLoading("loading");
     fetch("http://127.0.0.1:8000/queries/setQuery", {
       method: "POST",
       headers: {
@@ -94,19 +138,25 @@ function Search() {
           response.json().then((queryResult) => {
             setQueryResult(queryResult);
             console.log(queryResult);
+          }).then((res) => {
+            setTimeout(() => {
+              setIsLoading("loaded")
+            }, 2000)
           });
         }
+
       })
       .catch((err) => {
         console.log(err.response);
       });
     setTabDisabled(false);
-    var show = document.getElementById("displayData");
-    show.style.display = "block";
+    // var show = document.getElementById("displayData");
+    // show.style.display = "block";
   }
 
   function submitForm2SubsetQuery(content) {
     console.log(content);
+    setIsLoading("loading");
     fetch("http://127.0.0.1:8000/queries/subsetQuery", {
       method: "POST",
       headers: {
@@ -119,6 +169,10 @@ function Search() {
           response.json().then((queryResult) => {
             setQueryResult(queryResult);
             console.log(queryResult);
+          }).then((res) => {
+            setTimeout(() => {
+              setIsLoading("loaded")
+            }, 2000)
           });
         }
       })
@@ -344,10 +398,10 @@ function Search() {
         .attr(
           "transform",
           "translate(" +
-            (cmargin.left + cWidth / 2) +
-            "," +
-            (cmargin.top + cHeight / 2) +
-            ")"
+          (cmargin.left + cWidth / 2) +
+          "," +
+          (cmargin.top + cHeight / 2) +
+          ")"
         );
 
       let wordsData = queryResult.wordCloudData.map(function (d) {
@@ -399,56 +453,57 @@ function Search() {
       }
 
       // List tweets
-      let table = d3.select(tweetsTable.current).append("table");
-      let thead = table.append("thead");
-      let tbody = table.append("tbody");
 
-      let tableData = queryResult.first10Result;
-      let cols = ['text', 'time', 'favoriteCount', 'retweetCount', 'source', 'priority'];
-      // append the header row
-      thead
-        .append("tr")
-        .selectAll("th")
-        .data(cols)
-        .enter()
-        .append("th")
-        .style("border-bottom", "1px solid #ddd")
-        .style("background-color", "black")
-        .style("color", "white")
-        .text(function (d) {
-          return d;
-        });
+      // let table = d3.select(tweetsTable.current).append("table");
+      // let thead = table.append("thead");
+      // let tbody = table.append("tbody");
 
-      // create a row for each object in the data
-      let rows = tbody
-        .selectAll("tr")
-        .data(tableData)
-        .enter()
-        .append("tr")
-        .attr("id", function (d, i) {
-          return "table_" + i.toString();
-        })
-        .attr("class", "table_rows");
+      // let tableData = queryResult.first10Result;
+      // let cols = ['text', 'time', 'favoriteCount', 'retweetCount', 'source', 'priority'];
+      // // append the header row
+      // thead
+      //   .append("tr")
+      //   .selectAll("th")
+      //   .data(cols)
+      //   .enter()
+      //   .append("th")
+      //   .style("border-bottom", "1px solid #ddd")
+      //   .style("background-color", "black")
+      //   .style("color", "white")
+      //   .text(function (d) {
+      //     return d;
+      //   });
 
-      // create a cell in each row for each column
-      let cells = rows
-        .selectAll("td")
-        .data(function (row) {
-          return cols.map(function (columnName) {
-            return {
-              key: columnName,
-              value: row[columnName],
-            };
-          });
-        })
-        .enter()
-        .append("td")
-        .style("border-bottom", "1px solid #ddd")
-        .text(function (d) {
-          return d.value;
-        });
-    
-      }
+      // // create a row for each object in the data
+      // let rows = tbody
+      //   .selectAll("tr")
+      //   .data(tableData)
+      //   .enter()
+      //   .append("tr")
+      //   .attr("id", function (d, i) {
+      //     return "table_" + i.toString();
+      //   })
+      //   .attr("class", "table_rows");
+
+      // // create a cell in each row for each column
+      // let cells = rows
+      //   .selectAll("td")
+      //   .data(function (row) {
+      //     return cols.map(function (columnName) {
+      //       return {
+      //         key: columnName,
+      //         value: row[columnName],
+      //       };
+      //     });
+      //   })
+      //   .enter()
+      //   .append("td")
+      //   .style("border-bottom", "1px solid #ddd")
+      //   .text(function (d) {
+      //     return d.value;
+      //   });
+
+    }
 
   });
 
@@ -473,18 +528,21 @@ function Search() {
         <TabPanel value={value} index={0}>
           <QueryForm handleSearch={submitForm2SetQuery} />
         </TabPanel>
-        {/**/}
-
         {/* subquery */}
         <TabPanel value={value} index={1}>
           <QueryForm handleSearch={submitForm2SubsetQuery} />
         </TabPanel>
-        {/**/}
-
-        <div id="displayData" style={{ display: "none" }}>
+        {/* Result */}
+        {isLoading == "loading" &&
+          <Box sx={{ width: '100%' }}>
+            <LinearProgress />
+          </Box>
+        }
+        {/* {isLoading=="loaded" && <div id="displayData" style={{ display: "none" }}> */}
+        {isLoading == "loaded" && <div id="displayData">
           <Container>
             <Row>
-                <QueryTimeDisplay queryResult = { queryResult }/>
+              <QueryTimeDisplay queryResult={queryResult} />
             </Row>
             <Row>
               <Col>
@@ -509,15 +567,38 @@ function Search() {
             </Row>
             <Row>
               <Col>
-                <div ref={tweetsTable}></div>
+                {/* <div ref={tweetsTable}></div> */}
+                <Box sx={{
+                  height: 400,
+                  width: '100%',
+                  '& .header': {
+                    backgroundColor: blue[100],
+                  },
+                }}
+                >
+                  <DataGrid
+                    rows={queryResult.first10Result}
+                    columns={columns}
+                    getRowId={(row) => row.text + row.time}
+                    getRowHeight={() => 'auto'}
+                    pageSize={5}
+                    rowsPerPageOptions={[5]}
+                    experimentalFeatures={{ newEditingApi: true }}
+                    sx={{
+                      [`& .${gridClasses.cell}`]: {
+                        py: 1,
+                      },
+                    }}
+                  />
+                </Box>
               </Col>
             </Row>
-
-
           </Container>
         </div>
+        }
       </Box>
     </div>
+
   );
 }
 
